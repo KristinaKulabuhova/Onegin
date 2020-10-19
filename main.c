@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define MIN(X, Y) (X) < (Y) ? (X) : (Y)
+#define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 
 typedef struct Str
 {
@@ -23,6 +23,7 @@ typedef struct Pointer
 void Replace(Str* file, const char from, const char to)
 {
     size_t count_str = 0;
+
     for (int i = 0; i < file->size; ++i) 
     {
         if (from == file->buffer[i]) 
@@ -35,6 +36,7 @@ void Replace(Str* file, const char from, const char to)
 size_t CountSymbol(Str* file, const char to)
 {
     size_t count_str = 0;
+
     for (int i = 0; i < file->size; ++i) 
     {
         if (to == file->buffer[i]) 
@@ -42,43 +44,39 @@ size_t CountSymbol(Str* file, const char to)
             ++count_str;
         }
     }
+
     return count_str;
 }
 
- int cmp(const void* p_first,const void* p_second)
- {
+int Compare(const void* p_first,const void* p_second) {
     char* str_first = *((char**) p_first);
     char* str_second = *((char**) p_second);
     size_t first_size = strlen(str_first);
     size_t second_size = strlen(str_second);
     int i = 0;
     int j = 0;
+
     for (; i < first_size && j < second_size; ++i, ++j)
     {
-        while (ispunct(str_first[i]) || isspace(str_first[i]))
+        while ((ispunct(str_first[i]) || isspace(str_first[i])) && i < first_size)
         {
             ++i;
         }
-        while (ispunct(str_second[j]) || isspace(str_second[j]))
+        while ((ispunct(str_second[j]) || isspace(str_second[j])) && j < second_size)
         {
             ++j;
         }
-        if (str_second[j] < str_first[first_size - i]) 
+        if (tolower(str_second[j]) < tolower(str_first[i])) 
         {
             return 1;
         }
-        if (str_second[j] > str_first[i])
+        if (tolower(str_second[j]) > tolower(str_first[i]))
         {
             return -1;
         }
     }
-    return i - j;    
- }
 
-int Compare(const void* p_first,const void* p_second) {
-    char* str_first = *(char**)p_first;
-    char*str_second = *(char**)p_second;
-    return cmp(str_first, str_second);
+    return i - j;    
 }
 
 int CompareBackwards(const void* p_first,const void* p_second)
@@ -89,25 +87,27 @@ int CompareBackwards(const void* p_first,const void* p_second)
     size_t second_size = strlen(str_second);
     int i = 1;
     int j = 1;
+
     for (; i <= first_size && j <= second_size; ++i, ++j)
     {
-        while (ispunct(str_first[first_size - i]) || isspace(str_first[first_size - i]))
+        while ((ispunct(str_first[first_size - i]) || isspace(str_first[first_size - i])) && i <= first_size)
         {
             ++i;
         }
-        while (ispunct(str_second[second_size - j]) || isspace(str_second[second_size - j]))
+        while ((ispunct(str_second[second_size - j]) || isspace(str_second[second_size - j])) && j <= second_size)
         {
             ++j;
         }
-        if (str_second[second_size - j] < str_first[first_size - i]) 
+        if (tolower(str_second[second_size - j]) < tolower(str_first[first_size - i])) 
         {
             return 1;
         }
-        if (str_second[second_size - j] > str_first[first_size - i])
+        if (tolower(str_second[second_size - j]) > tolower(str_first[first_size - i]))
         {
             return -1;
         }
     }
+
     return i - j;
 }
 
@@ -118,6 +118,7 @@ size_t CountOfSameSymbol(char* str_first, char* str_second)
     size_t second_size = strlen(str_second);
     int i = 1;
     int j = 1;
+
     while (ispunct(str_first[first_size - i]) || isspace(str_first[first_size - i]))
     {
         ++i;
@@ -130,16 +131,19 @@ size_t CountOfSameSymbol(char* str_first, char* str_second)
     {
         ++count;
     }
+
     return count;
 }
 
 size_t Random(Pointer* buffer_of_strings, bool* is_this_string_in_poem) 
 {
     size_t index = 0;
+
     do 
     {
         index = rand() % buffer_of_strings->size;
     } while (is_this_string_in_poem[index] != false);
+
     return index;
 }
 
@@ -149,6 +153,7 @@ void SelectingLinesForRhyme(bool* is_this_string_in_poem, size_t index, Pointer*
     ++(*count_bool);
     size_t count_one = 0;
     size_t count_two = 0;
+
     if (index >= 0 && index < buffer_of_strings->size - 1) 
     {
         count_two = CountOfSameSymbol(buffer_of_strings->buffer[index], buffer_of_strings->buffer[index + 1]);
@@ -172,16 +177,13 @@ void SelectingLinesForRhyme(bool* is_this_string_in_poem, size_t index, Pointer*
     }
     else
     {
-        if (*count_bool < buffer_of_strings->size)
-        {
-            *i -= 2;
-        }
+        *i -= 2;
     }
 }
 
 Pointer Rhyming(Pointer* buffer_of_strings, int count_poem, int count_string_in_poem) 
 {
-    ++count_string_in_poem; // string ""
+    ++count_string_in_poem; 
     size_t count_one = 0;
     size_t count_two = 0;
     size_t index = 0;
@@ -193,7 +195,7 @@ Pointer Rhyming(Pointer* buffer_of_strings, int count_poem, int count_string_in_
         exit(1);
     }
 
-    bool* is_this_string_in_poem = calloc(buffer_of_strings->size, sizeof(true));
+    bool* is_this_string_in_poem = calloc(buffer_of_strings->size, sizeof(bool));
     size_t count_bool = 0;
     Pointer rhym = {calloc(count_string, sizeof(char*)), count_string};
 
@@ -205,11 +207,15 @@ Pointer Rhyming(Pointer* buffer_of_strings, int count_poem, int count_string_in_
         }
         for (int i = j * count_string_in_poem; i < j * count_string_in_poem + count_string_in_poem - 2; i += 2) 
         {
-            index = Random(buffer_of_strings, is_this_string_in_poem);
-            SelectingLinesForRhyme(is_this_string_in_poem, index, buffer_of_strings, &rhym, &count_bool, &i);
+            if (count_bool < buffer_of_strings->size)
+            {
+                index = Random(buffer_of_strings, is_this_string_in_poem);
+                SelectingLinesForRhyme(is_this_string_in_poem, index, buffer_of_strings, &rhym, &count_bool, &i);
+            }
         }
     }
 free(is_this_string_in_poem);
+
 return rhym;
 }
 
@@ -240,6 +246,7 @@ size_t GetSize(FILE* name)
     fseek(name, 0, SEEK_END);
     size_t file_size = ftell(name);
     fseek(name, 0, SEEK_SET);
+
     return file_size;
 }
 
@@ -249,7 +256,7 @@ Str ReadFile(const char* name)
     if (NULL == in)
     {
         perror("Cannot open the file");
-        exit(-1);
+        exit(1);
     }
 
     size_t file_size = GetSize(in);
@@ -268,7 +275,7 @@ Str ReadFile(const char* name)
     if (close == -1)
     {
         perror("Cannot close the file");
-        exit(-1);
+        exit(1);
     }
     
     return string;
@@ -302,7 +309,7 @@ void Write(const char* name, Pointer* buffer_of_string) {
 
 void Clear(Str* file, Pointer* pointers, Pointer* rhym)
 {
-    free (file->buffer);
+    free(file->buffer);
     free(pointers->buffer);
     free(rhym->buffer);
 }
@@ -318,12 +325,14 @@ int main() {
     printf("%s", "Enter the number of lines in the stanza: ");
     scanf("%d", &number_of_lines);
 
-    Str file = ReadFile("my file");
+    Str file = ReadFile("input_file");
     size_t count_str = CountSymbol(&file, '\n');
     Pointer buffer_of_string = GetArrayOfStringPointers(&file, count_str);
     qsort((void*)buffer_of_string.buffer, count_str, sizeof(char*), CompareBackwards); 
+    Write("reverse sorting", &buffer_of_string);
     Pointer rhym = Rhyming(&buffer_of_string, number_of_stanzas, number_of_lines);
-    Write("out file", &buffer_of_string);
+    qsort((void*)buffer_of_string.buffer, count_str, sizeof(char*), Compare);
+    Write("direct sorting", &buffer_of_string);
     Write("rhyming", &rhym);
 
     Clear(&file, &buffer_of_string, &rhym);
