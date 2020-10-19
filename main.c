@@ -64,15 +64,12 @@ int CompareBackwards(const void* p_first,const void* p_second)
         {
             return 1;
         }
-        else if (str_second[j] > str_first[i])
+        if (str_second[second_size - j] > str_first[first_size - i])
         {
             return -1;
         }
-        else 
-        {
-            return 0;
-        }
     }
+    return 0;
 }
 
 char** GetArrayOfStringPointers(Str *file, size_t count_str) 
